@@ -7,6 +7,7 @@ namespace BeautyManager.Shared.Connection;
 public class BeautyDbContext : DbContext
 {
     public DbSet<Models.Db.BeautyBook> BeautyBooks { get; set; }
+    public DbSet<BeautyTask> BeautyTasks { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

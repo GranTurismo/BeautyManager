@@ -6,6 +6,7 @@ public class WorkingCard
     public DateTimeOffset StartDate { get; set; }
     public DateTimeOffset EndDate { get; set; }
     public bool IsBooked { get; set; }
+    public bool IsPassed => DateTimeOffset.UtcNow > StartDate;
 
     public static IEnumerable<WorkingCard> GetCardsForDay(DateTime startDate)
     {

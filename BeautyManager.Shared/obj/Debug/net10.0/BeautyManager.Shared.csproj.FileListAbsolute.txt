@@ -12,3 +12,4 @@
 /Users/gogitakupatadze/RiderProjects/BeautyManager/BeautyManager.Shared/obj/Debug/net10.0/BeautyManager.Shared.pdb
 /Users/gogitakupatadze/RiderProjects/BeautyManager/BeautyManager.Shared/obj/Debug/net10.0/BeautyManager.Shared.genruntimeconfig.cache
 /Users/gogitakupatadze/RiderProjects/BeautyManager/BeautyManager.Shared/obj/Debug/net10.0/ref/BeautyManager.Shared.dll
+/Users/gogitakupatadze/RiderProjects/BeautyManager/BeautyManager.Shared/obj/Debug/net10.0/BeautyManager.Shared.sourcelink.json
