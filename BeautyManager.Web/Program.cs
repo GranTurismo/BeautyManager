@@ -11,6 +11,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddDbContext<BeautyDbContext>();
 builder.Services.AddScoped<ErrorMessage>();
 builder.Services.AddScoped<BookValidator>();
+builder.Services.AddScoped<BookCancelValidator>();
 
 var app = builder.Build();
 

@@ -36,7 +36,8 @@
 }
 
 <PopupInfo CancellationCode="@currentBookCancellationCode" Title="Only way to cancel it"></PopupInfo>
-<CancellationModal @bind-Show="@_isCancellationShown" Title="Cancellation" OnSubmit="@OnCancelSubmit"></CancellationModal>
+<CancellationModal @bind-Show="@_isCancellationShown" Title="Cancellation" BookToCancel="@_bookToCancel"
+                   OnSubmit="@OnCancelSubmit"></CancellationModal>
 <BookingModal BeautyTasks="_beautyTasks" OnBooking="@Book" SelectedCard="_selectedCard"
               @bind-IsShown="@_isBookingModalShown"></BookingModal>
 
@@ -91,10 +92,10 @@
                             {
                                 <button class="btn cancel-btn shadow"
                                         title="Cancel booking"
-                                        @onclick:stopPropagation
-                                        @onclick="() => CancelBookingAsync(card)">
+                                        @onclick="() => CancelBookingAsync(card.Book)">
                                     <i class="bi bi-x-circle-fill me-1"></i>Cancel
                                 </button>
+                                @card.Book.CancellationCode;
                             }
 
                             <h5 class="card-title text-secondary mb-2">@card.StartDate.ToString("MMMM dd, yyyy")</h5>
@@ -129,6 +130,7 @@
     private Stylist? _selectedStylist;
     private bool _isBooking = false;
     private bool _isPageLoading = true;
+    private BeautyBook? _bookToCancel = null;
     private int currentBookCancellationCode;
 
     private int SelectedStylistId
@@ -214,6 +216,7 @@
             foreach (WorkingCard card in affectedCards)
             {
                 card.IsBooked = true;
+                card.Book = book;
             }
         }
     }
@@ -245,18 +248,18 @@
         DisableBookedCards();
     }
 
-    private Task CancelBookingAsync(WorkingCard card)
+    private void CancelBookingAsync(BeautyBook book)
     {
+        _bookToCancel = book;
         _isCancellationShown = true;
-        return Task.CompletedTask;
     }
 
-    private Task OnCancelSubmit(string code)
+    private async Task OnCancelSubmit(BeautyBook book)
     {
-        Console.WriteLine(code);
-
-        return Task.CompletedTask;
+        DbCon.BeautyBooks.Remove(book);
+        await DbCon.SaveChangesAsync();
+        UpdateBooks();
+        UpdateWorkingCards();
     }
-
 }
 

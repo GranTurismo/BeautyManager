@@ -1,4 +1,10 @@
+@using System.Diagnostics
+@using BeautyManager.Shared.Models.Db
+@using BeautyManager.Web.Models
+@using BeautyManager.Web.Utils
 @inject IJSRuntime JsRuntime
+@inject BookCancelValidator BookCancelValidator;
+@inject ErrorMessage ErrorMessage;
 
 <div class="modal fade" id="@_id" tabindex="-1" aria-labelledby="@IdLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -15,9 +21,9 @@
                                @bind-Value="CancellationInput" placeholder="@_placeholder"/>
                 </div>
 
-                @if (!string.IsNullOrEmpty(Error))
+                @if (ErrorMessage.IsErrorOccured)
                 {
-                    <div class="text-danger small mb-2">@Error</div>
+                    <div class="text-danger small mb-2">@ErrorMessage.Message</div>
                 }
 
                 <div class="text-muted small">Enter the code you received when booking to cancel your appointment.</div>
@@ -39,12 +45,15 @@
 
     private string _placeholder { get; set; } = "Enter cancellation code";
 
+    [Parameter] public BeautyBook BookToCancel { get; set; }
+
     [Parameter]
     public bool Show
     {
         get;
         set
         {
+            if (field == value) return;
             field = value;
             OnShowingValueChanged(value);
         }
@@ -53,21 +62,20 @@
     [Parameter] public EventCallback<bool> ShowChanged { get; set; }
 
     // When user submits, the parent receives the entered code (string) and can perform validation/removal
-    [Parameter] public EventCallback<string> OnSubmit { get; set; }
+    [Parameter] public EventCallback<BeautyBook> OnSubmit { get; set; }
 
     private string CancellationInput { get; set; } = string.Empty;
-    private string? Error { get; set; }
 
     private string InputId => _id + "_input";
     private string IdLabel => _id + "Label";
 
-    private async void SetIsShown(bool isShown)
+    private async Task SetIsShown(bool isShown)
     {
         Show = isShown;
         await ShowChanged.InvokeAsync(isShown);
     }
 
-    private async void OnShowingValueChanged(bool shouldShow)
+    private async Task OnShowingValueChanged(bool shouldShow)
     {
         if (shouldShow)
         {
@@ -90,18 +98,21 @@
 
     private async Task SubmitAsync()
     {
-        Error = null;
+        ErrorMessage.IsErrorOccured = false;
         if (string.IsNullOrWhiteSpace(CancellationInput))
         {
-            Error = "Please enter the cancellation code.";
+            ErrorMessage.Message = "Please enter the cancellation code.";
             return;
         }
 
-        // send the code back to the parent
-        await OnSubmit.InvokeAsync(CancellationInput.Trim());
+        ErrorMessage validationError = BookCancelValidator.ValidateCancellation(CancellationInput, BookToCancel, ErrorMessage);
+        if (validationError.IsErrorOccured)
+            return;
 
+        await OnSubmit.InvokeAsync(BookToCancel);
+        
         // close and clear
-        await HideModalAsync();
+        await SetIsShown(false);
         CancellationInput = string.Empty;
         await InvokeAsync(StateHasChanged);
     }
@@ -109,8 +120,7 @@
     private async Task CloseAsync()
     {
         CancellationInput = string.Empty;
-        Error = null;
-        await HideModalAsync();
+        await SetIsShown(false);
         await InvokeAsync(StateHasChanged);
     }
 

@@ -1,3 +1,5 @@
+using BeautyManager.Shared.Models.Db;
+
 namespace BeautyManager.Shared.Models.Local;
 
 public class WorkingCard
@@ -7,6 +9,7 @@ public class WorkingCard
     public DateTimeOffset EndDate { get; set; }
     public bool IsBooked { get; set; }
     public bool IsPassed => DateTimeOffset.UtcNow > StartDate;
+    public BeautyBook Book { get; set; }
 
     public static IEnumerable<WorkingCard> GetCardsForDay(DateTime startDate)
     {
