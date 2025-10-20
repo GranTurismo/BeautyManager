@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeautyManager.Shared", "Bea
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeautyManager.Web", "BeautyManager.Web\BeautyManager.Web.csproj", "{11D49D7F-5D32-46B8-8E08-020FDB0716CA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeautyManager.Cms", "BeautyManager.Cms\BeautyManager.Cms.csproj", "{B64057CA-37A7-4398-B202-61588C2497B7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{11D49D7F-5D32-46B8-8E08-020FDB0716CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{11D49D7F-5D32-46B8-8E08-020FDB0716CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{11D49D7F-5D32-46B8-8E08-020FDB0716CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B64057CA-37A7-4398-B202-61588C2497B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B64057CA-37A7-4398-B202-61588C2497B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B64057CA-37A7-4398-B202-61588C2497B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B64057CA-37A7-4398-B202-61588C2497B7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

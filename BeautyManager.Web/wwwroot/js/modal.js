@@ -1,4 +1,4 @@
-var currentModalInstance;
+let currentModalInstance;
 
 function hideModal(id)
 {
