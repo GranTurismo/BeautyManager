@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using System.Collections.Immutable
+@using System.Timers
 @using BeautyManager.Shared
 @using BeautyManager.Shared.Connection
 @using BeautyManager.Shared.Models.Db
@@ -35,8 +36,9 @@
 }
 
 <PopupInfo CancellationCode="@currentBookCancellationCode" Title="Only way to cancel it"></PopupInfo>
-<CancellationModal Show="@_isCancellationShown" Title="Cancellation" OnSubmit="@OnCancelSubmit"></CancellationModal>
-<BookingModal BeautyTasks="_beautyTasks" OnBooking="@Book" SelectedCard="_selectedCard"></BookingModal>
+<CancellationModal @bind-Show="@_isCancellationShown" Title="Cancellation" OnSubmit="@OnCancelSubmit"></CancellationModal>
+<BookingModal BeautyTasks="_beautyTasks" OnBooking="@Book" SelectedCard="_selectedCard"
+              @bind-IsShown="@_isBookingModalShown"></BookingModal>
 
 <div class="container py-5">
     <div class="home-header">
@@ -83,9 +85,8 @@
 
                     <div
                         class="card working-card h-100 @(card.IsBooked ? "booked" : "") @(card.IsPassed ? "passed" : "")"
-                        @onclick="@((card.IsBooked || card.IsPassed ? null : () => OnCardClick(card))!)">
+                        @onclick="@(() => OnCardClick(card))">
                         <div class="card-body d-flex flex-column justify-content-between position-relative">
-                            @* Stylish cancel button shown only for booked (and not passed) cards *@
                             @if (card.IsBooked && !card.IsPassed)
                             {
                                 <button class="btn cancel-btn shadow"
@@ -143,7 +144,6 @@
                 UpdateWorkingCards();
                 UpdateBeautyTasks();
                 DisableBookedCards();
-                //StateHasChanged();
             }
         }
     }
@@ -159,6 +159,7 @@
         DateTime.Now.Day, Constants.OpeningTime.Hour, Constants.OpeningTime.Minute, 0);
 
     ImmutableList<WorkingCard> _workingCards = ImmutableList<WorkingCard>.Empty;
+    private bool _isBookingModalShown = false;
 
     private void UpdateBeautyTasks()
     {
@@ -176,6 +177,7 @@
 
         if (!firstRender)
             return;
+
         _stylists = await GetStylists();
         if (_stylists.Any())
             SelectedStylistId = _stylists.First().Id;
@@ -216,20 +218,13 @@
         }
     }
 
-    private async Task OnCardClick(WorkingCard card)
+    private void OnCardClick(WorkingCard card)
     {
+        bool isBlocked = card.IsBooked || card.IsPassed;
+        if (isBlocked)
+            return;
         _selectedCard = card;
-        await ShowBookingModal();
-    }
-
-    private async Task ShowBookingModal()
-    {
-        await JsRuntime.InvokeVoidAsync("showModal", "bookingModal");
-    }
-
-    private async Task CloseBookingModal()
-    {
-        await JsRuntime.InvokeVoidAsync("hideModal", "bookingModal");
+        _isBookingModalShown = true;
     }
 
     private async Task Book(BeautyBook book)
@@ -240,14 +235,7 @@
         UpdateWorkingCards();
         UpdateBooks();
         DisableBookedCards();
-        //StateHasChanged();
-        await CloseBookingModal();
-        await ShowPopupInfoModal(book.CancellationCode);
-    }
-
-    private async Task ShowPopupInfoModal(int cancellationCode)
-    {
-        await JsRuntime.InvokeVoidAsync("showModal", "infoModal");
+        _isBookingModalShown = false;
     }
 
     private void Next(int daysCount)
@@ -255,7 +243,6 @@
         _startDate = _startDate.AddDays(daysCount);
         UpdateWorkingCards();
         DisableBookedCards();
-        //StateHasChanged();
     }
 
     private Task CancelBookingAsync(WorkingCard card)

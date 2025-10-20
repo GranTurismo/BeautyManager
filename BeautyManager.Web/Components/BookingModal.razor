@@ -5,6 +5,7 @@
 @using BeautyManager.Web.Utils
 @using Microsoft.EntityFrameworkCore
 @inject ErrorMessage ErrorMessage;
+@inject IJSRuntime JSRuntime;
 
 <div class="modal fade"
      id="bookingModal"
@@ -53,7 +54,9 @@
                     <button type="button" @onclick="Book" disabled="@_isBooking"
                             class="btn btn-primary rounded-pill px-4">Save
                     </button>
-                    <button type="button" id="cancel" class="btn btn-outline-secondary rounded-pill px-4">
+                    <button type="button" id="cancel" class="btn btn-outline-secondary rounded-pill px-4"
+                            @onclick="async () => { await SetIsShown(false);
+                                     }">
                         Cancel
                     </button>
                 </div>
@@ -63,16 +66,32 @@
 </div>
 
 @code {
-    [Inject] BookValidator BookValidator { get; set; } 
+    [Inject] BookValidator BookValidator { get; set; }
     [Inject] BeautyDbContext DbContext { get; set; }
-        
+
+    [Parameter]
+    public bool IsShown
+    {
+        get;
+        set
+        {
+            field = value;
+            _ = OnIsShownChanged(value);
+        }
+    }
+    
+    [Parameter] public EventCallback<bool> IsShownChanged { get; set; }
+
     [Parameter] public WorkingCard? SelectedCard { get; set; }
+
     [Parameter] public List<BeautyTask> BeautyTasks { get; set; } = new();
+
     /// <summary>
     /// Passes, selected task id
     /// </summary>
-    [Parameter] public EventCallback<BeautyBook> OnBooking { get; set; }
-    
+    [Parameter]
+    public EventCallback<BeautyBook> OnBooking { get; set; }
+
     private string _customerName = string.Empty;
     private string InputNumber = string.Empty;
     private int _selectedTaskId;
@@ -87,13 +106,30 @@
             StateHasChanged();
         }
     }
+    
+    private async Task SetIsShown(bool value)
+    {
+        IsShown = value;
+        await IsShownChanged.InvokeAsync(value);
+    }
+    
+    private async Task OnIsShownChanged(bool shouldShow)
+    {
+        if (shouldShow)
+        {
+            await ShowModal();
+            return;
+        }
+
+        await CloseModal();
+    }
 
     private async Task Book()
     {
         _isBooking = true;
-        BeautyTask? selectedTask = BeautyTasks.FirstOrDefault(o=>o.Id==_selectedTaskId);
+        BeautyTask? selectedTask = BeautyTasks.FirstOrDefault(o => o.Id == _selectedTaskId);
         List<BeautyBook> books = await DbContext.BeautyBooks.ToListAsync();
-        
+
         BeautyBook book = new()
         {
             CustomerName = _customerName ?? string.Empty,
@@ -111,8 +147,9 @@
         }
 
         await OnBooking.InvokeAsync(book);
-        
+
         _isBooking = false;
+        await CloseModal();
         ResetFields();
     }
 
@@ -121,6 +158,16 @@
         _customerName = string.Empty;
         InputNumber = string.Empty;
         _selectedTaskId = BeautyTasks.Any() ? BeautyTasks.First().Id : 0;
+    }
+
+    private async Task CloseModal()
+    {
+        await JSRuntime.InvokeVoidAsync("hideModal", "bookingModal");
+    }
+
+    private async Task ShowModal()
+    {
+        await JSRuntime.InvokeVoidAsync("showModal", "bookingModal");
     }
 
 }

@@ -10,6 +10,9 @@ function hideModal(id)
 function showModal(id) {
     const el = document.getElementById(id);
     if (!el) return;
-    const modal = new bootstrap.Modal(el);
+    const modal = new bootstrap.Modal(el,{
+        keyboard: false,
+        backdrop:'static'
+    });
     modal.show();
 }
