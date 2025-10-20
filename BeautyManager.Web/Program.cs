@@ -1,5 +1,6 @@
 using BeautyManager.Shared.Connection;
 using BeautyManager.Web.Components;
+using BeautyManager.Web.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddDbContext<BeautyDbContext>();
+builder.Services.AddScoped<ErrorMessage>();
 
 var app = builder.Build();
 

@@ -1,57 +1,75 @@
 ﻿@page "/"
 @using System.Collections.Immutable
-@using System.Text.Json
 @using BeautyManager.Shared
 @using BeautyManager.Shared.Connection
 @using BeautyManager.Shared.Models.Db
 @using BeautyManager.Shared.Models.Local
+@using BeautyManager.Web.Models
+@using Microsoft.EntityFrameworkCore
 @inject BeautyDbContext DbCon;
 @inject IJSRuntime JsRuntime;
+@inject ErrorMessage ErrorMessage;
 
 <div class="container py-5">
+    <div class="home-header">
+        <div class="logo"><i class="bi bi-stars"></i></div>
+        <div>
+            <h1 class="fw-bold text-primary mb-0" style="letter-spacing:1px;">Beauty Manager</h1>
+            <div class="text-secondary small">Book your beauty session with ease</div>
+        </div>
+    </div>
+    <div class="mb-4">
+        <label for="stylistSelect" class="form-label fw-semibold text-primary">
+            <i class="bi bi-scissors me-2"></i> Choose Stylist
+        </label>
+        <InputSelect id="stylistSelect"
+                     class="form-select form-select-lg rounded-pill shadow-sm border-primary"
+                     @bind-Value="SelectedStylistId">
+            <option disabled value="">-- Select a Stylist --</option>
+            @foreach (Stylist stylist in _stylists)
+            {
+                <option value="@stylist.Id">@stylist.Name</option>
+            }
+        </InputSelect>
+    </div>
+
     <h2 class="mb-4 fw-bold text-primary">Today's Working Cards</h2>
-    <button @onclick="()=>Next(1)" class="btn btn-outline-primary rounded-pill px-4 py-2 mb-4 shadow-sm d-flex align-items-center gap-2">
-        <i class="bi bi-arrow-right-circle fs-5"></i>
-        Next Day
-    </button>
-    <button @onclick="()=>Next(-1)" class="btn btn-outline-primary rounded-pill px-4 py-2 mb-4 shadow-sm d-flex align-items-center gap-2">
-        <i class="bi bi-arrow-right-circle fs-5"></i>
-        Prev Day
-    </button>
+    <div class="day-nav-group">
+        <button @onclick="() => Next(-1)"
+                class="btn btn-outline-primary rounded-pill px-4 py-2 shadow-sm d-flex align-items-center gap-2">
+            <i class="bi bi-arrow-left-circle fs-5"></i>
+            Prev Day
+        </button>
+        <button @onclick="() => Next(1)"
+                class="btn btn-primary rounded-pill px-4 py-2 shadow-sm d-flex align-items-center gap-2">
+            Next Day
+            <i class="bi bi-arrow-right-circle fs-5"></i>
+        </button>
+    </div>
     <div class="row g-4 justify-content-center">
         @if (_workingCards.Count > 0)
         {
             @foreach (WorkingCard card in _workingCards)
             {
-                if (!card.IsPassed)
-                {
-                    <div class="col-12 col-sm-6 col-md-4 col-lg-3"
-                         data-bs-toggle="modal"
-                         data-bs-target="#modalSelectTask"
-                         @onclick="() => OnCardClick(card)">
-                        <div class="card shadow-sm border-primary h-100">
-                            <div class="card-body d-flex flex-column justify-content-between">
-                                <h5 class="card-title text-secondary mb-2">@card.StartDate.ToString("MMMM dd, yyyy")</h5>
-                                <p class="card-text fs-5 mb-1">
-                                    <span class="badge bg-primary">@card.StartDate.ToString("hh:mm")</span>
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    
+                    <div class="card working-card h-100 @(card.IsBooked ? "booked" : "") @(card.IsPassed ? "passed" : "")"
+                         data-bs-toggle="@((card.IsBooked || card.IsPassed)?"":"modal")" data-bs-target="#modalSelectTask" @onclick="@((card.IsBooked || card.IsPassed ? null : () => OnCardClick(card))!)">
+                                                <div class="card-body d-flex flex-column justify-content-between">
+                            <h5 class="card-title text-secondary mb-2">@card.StartDate.ToString("MMMM dd, yyyy")</h5>
+                            <p class="card-text fs-5 mb-1">
+                                <span class="badge bg-primary">@card.StartDate.ToString("hh:mm")</span>
+                            </p>
+                            @if(card.IsBooked || card.IsPassed)
+                            {
+                                <p class="card-text mt-2 mb-0 small text-danger">
+                                    <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                                    <span class="fw-semibold">@(card.IsPassed ? "Passed" : "Booked")</span>
                                 </p>
-                            </div>
+                            }
                         </div>
                     </div>
-                }
-                else
-                {
-                    <div class="col-12 col-sm-6 col-md-4 col-lg-3 opacity-50">
-                        <div class="card shadow-sm border-primary h-100">
-                            <div class="card-body d-flex flex-column justify-content-between">
-                                <h5 class="card-title text-secondary mb-2">@card.StartDate.ToString("MMMM dd, yyyy")</h5>
-                                <p class="card-text fs-5 mb-1">
-                                    <span class="badge bg-primary">@card.StartDate.ToString("hh:mm")</span>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                }
+                </div>
             }
         }
         else
@@ -67,10 +85,10 @@
      id="modalSelectTask"
      tabindex="-1" style="background:rgba(0,0,0,0.5);" aria-modal="true" role="dialog">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content shadow-lg border-0 rounded-4">
+        <div class="modal-content glass shadow-lg border-0 rounded-4">
             <div class="modal-header border-0 pb-0">
                 <h3 class="modal-title fw-bold text-primary">Select Task
-                    for @(_selectedCard.StartDate.ToString("hh:mm"))</h3>
+                    for @(_selectedCard?.StartDate.ToString("hh:mm"))</h3>
             </div>
             <div class="modal-body">
                 <label class="form-label mb-2" for="taskSelect">Task:</label>
@@ -84,7 +102,7 @@
                 <label class="form-label mt-2 fw-semibold text-secondary">
                     <i class="bi bi-clock-history me-2"></i>
                     Duration: <span
-                        class="badge bg-info text-dark fs-6">@(_beautyTasks.First(o => o.Id == _selectedTaskId).TaskDuration.ToString("HH\\:mm"))</span>
+                        class="badge bg-info text-dark fs-6">@(_beautyTasks.FirstOrDefault(o => o.Id == _selectedTaskId)?.TaskDuration.ToString("HH\\:mm"))</span>
                 </label>
                 <div class="mb-3">
                     <label for="customerName" class="form-label fw-semibold text-secondary">
@@ -100,6 +118,12 @@
                     <InputText id="inputNumber" class="form-control form-control-lg rounded-3"
                                @bind-Value="_inputNumber" placeholder="Enter your phone number"/>
                 </div>
+                @if (ErrorMessage.IsErrorOccured)
+                {
+                    <div class="alert alert-danger mt-3" role="alert">
+                        @ErrorMessage.Message
+                    </div>
+                }
                 <div class="modal-footer border-0 pt-0">
                     <button type="button" @onclick="Book" class="btn btn-primary rounded-pill px-4">Save
                     </button>
@@ -114,60 +138,133 @@
 </div>
 
 @code{
-    private string _inputNumber { get; set; }
-    private string _customerName;
+    private string? _inputNumber { get; set; } = string.Empty;
+    private string? _customerName = string.Empty;
     private int _selectedTaskId;
-    private WorkingCard _selectedCard;
-
-    ImmutableList<BeautyTask> _beautyTasks;
-
-    DateTime _startDate = new(DateTime.UtcNow.Year, DateTime.UtcNow.Month,
-        1, Constants.OpeningTime.Hour, Constants.OpeningTime.Minute, 0);
-
-    ImmutableList<WorkingCard> _workingCards;
-
-    protected override void OnInitialized()
+    private Stylist? _selectedStylist;
+    private int field;
+    private int SelectedStylistId
     {
-        base.OnInitialized();
-        _workingCards = WorkingCard.GetCardsForDay(_startDate).ToImmutableList();
-        _beautyTasks = DbCon.BeautyTasks.ToImmutableList();
-        _selectedTaskId = _beautyTasks.First().Id;
-        _selectedCard = _workingCards.First();
+        get => field;
+        set
+        {
+            field = value;
+            _selectedStylist = _stylists.FirstOrDefault(o => o.Id == SelectedStylistId);
+            if (_selectedStylist != null)
+            {
+                UpdateBooks();
+                UpdateWorkingCards();
+                UpdateBeautyTasks();
+                DisableBookedCards();
+            }
+        }
     }
-
+    private ImmutableList<Stylist> _stylists = ImmutableList<Stylist>.Empty;
+    private ImmutableList<BeautyBook> _books = ImmutableList<BeautyBook>.Empty;
+    private WorkingCard? _selectedCard;
+    ImmutableList<BeautyTask> _beautyTasks = ImmutableList<BeautyTask>.Empty;
+    DateTime _startDate = new(DateTime.Now.Year, DateTime.Now.Month,
+        DateTime.Now.Day, Constants.OpeningTime.Hour, Constants.OpeningTime.Minute, 0);
+    ImmutableList<WorkingCard> _workingCards = ImmutableList<WorkingCard>.Empty;
+    private void UpdateBeautyTasks()
+    {
+        if (_selectedStylist != null)
+        {
+            _beautyTasks = _selectedStylist.BeautyTaskStylists
+                .Select(o => o.BeautyTask)
+                .ToImmutableList();
+            if (_beautyTasks.Any())
+                _selectedTaskId = _beautyTasks.First().Id;
+        }
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        _stylists = GetStylists();
+        if (_stylists.Any())
+            SelectedStylistId = _stylists.First().Id;
+    }
+    private ImmutableList<Stylist> GetStylists()
+    {
+        return DbCon.Stylists
+            .Include(o => o.BeautyTaskStylists).ThenInclude(o => o.BeautyTask)
+            .Include(o => o.Books).ToImmutableList();
+    }
+    private void UpdateWorkingCards()
+    {
+        _workingCards = WorkingCard.GetCardsForDay(_startDate).ToImmutableList();
+        if (_workingCards.Any())
+            _selectedCard = _workingCards.First();
+    }
+    private void UpdateBooks()
+    {
+        if (_selectedStylist != null)
+            _books = _selectedStylist.Books.ToImmutableList();
+    }
+    private void DisableBookedCards()
+    {
+        foreach (BeautyBook book in _books)
+        {
+            DateTimeOffset bookEndDate = book.ExecutingDate.Add(book.Task.TaskDuration.ToTimeSpan());
+            ImmutableList<WorkingCard> affectedCards = _workingCards.Where(o => book.ExecutingDate <= o.StartDate && bookEndDate > o.StartDate).ToImmutableList();
+            foreach (WorkingCard card in affectedCards)
+            {
+                card.IsBooked = true;
+                StateHasChanged();
+            }
+        }
+    }
     private void OnCardClick(WorkingCard card)
     {
         _selectedCard = card;
     }
-
     private async Task Book()
     {
-        BeautyTask selectedTask = _beautyTasks.First(o => o.Id == _selectedTaskId);
+        if (_selectedCard == null) return;
+        BeautyTask? selectedTask = _beautyTasks.FirstOrDefault(o => o.Id == _selectedTaskId);
+        if (selectedTask == null) return;
+        DateTimeOffset endDate = _selectedCard.StartDate.Add(selectedTask.TaskDuration.ToTimeSpan());
+        UpdateBooks();
+        ErrorMessage.IsErrorOccured = _books.Any(o =>
+            o.ExecutingDate >= _selectedCard.StartDate
+            && o.ExecutingDate < endDate);
+        if (ErrorMessage.IsErrorOccured)
+        {
+            ErrorMessage.Message = "Cannot book this time slot. It is either already booked or has passed.";
+            StateHasChanged();
+            return;
+        }
         BeautyBook book = new()
         {
-            CustomerName = _customerName,
-            CustomerPhone = _inputNumber,
+            CustomerName = _customerName ?? string.Empty,
+            CustomerPhone = _inputNumber ?? string.Empty,
             ExecutingDate = _selectedCard.StartDate,
-            OrderDate = DateTimeOffset.UtcNow,
-            Task = new()
-            {
-                TaskDuration = selectedTask.TaskDuration,
-                TaskTitle = selectedTask.TaskTitle,
-            }
+            OrderDate = DateTimeOffset.Now,
+            Task = selectedTask
         };
-        Console.WriteLine(JsonSerializer.Serialize(book));
+        _selectedStylist?.Books.Add(book);
+        await DbCon.SaveChangesAsync();
+        UpdateWorkingCards();
+        UpdateBooks();
+        DisableBookedCards();
         await CloseModal();
     }
-
     private async Task CloseModal()
     {
+        ResetFields();
         await JsRuntime.InvokeVoidAsync("closeModal", "cancel");
     }
-
+    private void ResetFields()
+    {
+        _customerName = string.Empty;
+        _inputNumber = string.Empty;
+        ErrorMessage.IsErrorOccured = false;
+    }
     private void Next(int daysCount)
     {
         _startDate = _startDate.AddDays(daysCount);
-        _workingCards = WorkingCard.GetCardsForDay(_startDate).ToImmutableList();
+        UpdateWorkingCards();
+        DisableBookedCards();
     }
 
 }

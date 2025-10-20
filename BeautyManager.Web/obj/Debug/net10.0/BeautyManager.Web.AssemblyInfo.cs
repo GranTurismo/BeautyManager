@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BeautyManager.Web")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b6156268bdd9e2ad99cdc0e858306cd02f2450cf")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9581cc9242ae6474384fc4e1e378c5d9139b9539")]
 [assembly: System.Reflection.AssemblyProductAttribute("BeautyManager.Web")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BeautyManager.Web")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

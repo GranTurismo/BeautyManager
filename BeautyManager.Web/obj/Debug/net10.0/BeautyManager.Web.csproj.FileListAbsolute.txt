@@ -60,7 +60,6 @@
 /Users/gogitakupatadze/RiderProjects/BeautyManager/BeautyManager.Web/obj/Debug/net10.0/scopedcss/Components/Layout/ReconnectModal.razor.rz.scp.css
 /Users/gogitakupatadze/RiderProjects/BeautyManager/BeautyManager.Web/obj/Debug/net10.0/scopedcss/bundle/BeautyManager.Web.styles.css
 /Users/gogitakupatadze/RiderProjects/BeautyManager/BeautyManager.Web/obj/Debug/net10.0/scopedcss/projectbundle/BeautyManager.Web.bundle.scp.css
-/Users/gogitakupatadze/RiderProjects/BeautyManager/BeautyManager.Web/obj/Debug/net10.0/compressed/izs3f6xsia-z4z4fil66m.gz
 /Users/gogitakupatadze/RiderProjects/BeautyManager/BeautyManager.Web/obj/Debug/net10.0/compressed/6mkt1aow3a-lv5tvmajl9.gz
 /Users/gogitakupatadze/RiderProjects/BeautyManager/BeautyManager.Web/obj/Debug/net10.0/compressed/f1vpk0q2dw-yrrjds8uiu.gz
 /Users/gogitakupatadze/RiderProjects/BeautyManager/BeautyManager.Web/obj/Debug/net10.0/compressed/voc0j6dqil-y3u93cx22o.gz
@@ -161,3 +160,4 @@
 /Users/gogitakupatadze/RiderProjects/BeautyManager/BeautyManager.Web/obj/Debug/net10.0/BeautyManager.Web.sourcelink.json
 /Users/gogitakupatadze/RiderProjects/BeautyManager/BeautyManager.Web/obj/Debug/net10.0/compressed/3hcmtzb5et-0f9vg7nmnr.gz
 /Users/gogitakupatadze/RiderProjects/BeautyManager/BeautyManager.Web/obj/Debug/net10.0/compressed/9lhidfve8f-f291bgxpgc.gz
+/Users/gogitakupatadze/RiderProjects/BeautyManager/BeautyManager.Web/obj/Debug/net10.0/compressed/izs3f6xsia-om7mfz3v82.gz

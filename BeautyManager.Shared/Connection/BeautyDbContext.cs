@@ -8,6 +8,8 @@ public class BeautyDbContext : DbContext
 {
     public DbSet<Models.Db.BeautyBook> BeautyBooks { get; set; }
     public DbSet<BeautyTask> BeautyTasks { get; set; }
+    public DbSet<Stylist> Stylists { get; set; }
+    public DbSet<BeautyTaskStylist> BeautyTaskStylists { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -20,12 +22,13 @@ public class BeautyDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        modelBuilder.Entity<BeautyTask>().HasData(
+        List<BeautyTask> seedingTasks =
+        [
             new()
             {
                 Id = 1,
                 TaskTitle = "Man haircut",
-                TaskDuration = new(1, 0)
+                TaskDuration = new(1, 0),
             },
             new()
             {
@@ -50,6 +53,57 @@ public class BeautyDbContext : DbContext
                 Id = 5,
                 TaskTitle = "Woman haircut + hair wash",
                 TaskDuration = new(2, 0)
+            }
+        ];
+        List<Stylist> seedingStylists =
+        [
+            new()
+            {
+                Id = 1,
+                Name = "John Doe"
+            },
+            new()
+            {
+                Id = 2,
+                Name = "Jane Smith"
+            }
+        ];
+        modelBuilder.Entity<Stylist>().HasData(
+            seedingStylists
+        );
+        modelBuilder.Entity<BeautyTask>().HasData(
+            seedingTasks
+        );
+        modelBuilder.Entity<BeautyTaskStylist>().HasData(
+            new BeautyTaskStylist
+            {
+                Id = 1,
+                BeautyTaskId = 1,
+                StylistId = 1
+            },
+            new BeautyTaskStylist
+            {
+                Id = 2,
+                BeautyTaskId = 2,
+                StylistId = 1
+            },
+            new BeautyTaskStylist
+            {
+                Id = 3,
+                BeautyTaskId = 3,
+                StylistId = 1
+            },
+            new BeautyTaskStylist
+            {
+                Id = 4,
+                BeautyTaskId = 4,
+                StylistId = 2
+            },
+            new BeautyTaskStylist
+            {
+                Id = 5,
+                BeautyTaskId = 5,
+                StylistId = 2
             }
         );
     }
