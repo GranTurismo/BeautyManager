@@ -1,0 +1,44 @@
+# .gitignore for .NET / Rider projects
+
+# Build Folders
+[Bb]in/
+[Oo]bj/
+
+# Rider
+.idea/
+*.sln.DotSettings.user
+*.DotSettings.user
+
+# Visual Studio
+.vs/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Debug / Release outputs
+*.dll
+*.exe
+*.pdb
+*.obj
+
+# Generated static web assets
+**/staticwebassets.*
+
+# compressed artifacts
+**/compressed/*.gz
+
+# Logs
+*.log
+
+# Misc
+*.vsix
+
+# Node / npm (if present)
+node_modules/
+
+# Ignore publish outputs
+**/publish/
+
