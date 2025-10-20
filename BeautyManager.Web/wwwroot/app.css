@@ -40,6 +40,26 @@ h1:focus {
 /* Modern enhancements for Home.razor */
 
 /* Header branding */
+.loading-overlay {
+    min-height: 60vh;
+    background: radial-gradient(1200px 400px at 10% 10%, rgba(99,102,241,0.08), transparent 10%),
+    radial-gradient(1000px 300px at 90% 90%, rgba(56,189,248,0.06), transparent 10%);
+}
+.loading-card {
+    backdrop-filter: blur(6px);
+    background: linear-gradient(180deg, rgba(255,255,255,0.65), rgba(255,255,255,0.55));
+}
+.skeleton {
+    height: 12px;
+    width: 140px;
+    background: linear-gradient(90deg,#e9eefc,#f8fbff,#e9eefc);
+    background-size: 200% 100%;
+    animation: shimmer 1.2s linear infinite;
+}
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
 .home-header {
     display: flex;
     align-items: center;
@@ -81,6 +101,34 @@ h1:focus {
     cursor: not-allowed;
 }
 
+/* Stylish cancel button overlay for booked cards */
+.cancel-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 5;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff4757 100%);
+    color: white;
+    border: none;
+    border-radius: 999px;
+    padding: 0.4rem 0.7rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    box-shadow: 0 6px 18px rgba(255,71,87,0.18);
+    transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
+    cursor: pointer;
+}
+.cancel-btn i { font-size: 1.05rem; }
+.cancel-btn:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 10px 26px rgba(255,71,87,0.22);
+}
+.cancel-btn:active {
+    transform: translateY(0) scale(0.99);
+}
+
 /* Navigation button group */
 .day-nav-group {
     display: flex;
@@ -97,8 +145,40 @@ h1:focus {
     box-shadow: 0 8px 32px rgba(37,117,252,0.12);
 }
 
-/* Responsive tweaks */
+/* Cancellation modal styling */
+.modal-content.glass .modal-header .modal-title {
+    color: #b22222; /* deep red */
+}
+
+/* Slightly larger input with inner glow */
+.modal-content.glass .form-control-lg {
+    border-radius: 0.7rem;
+    box-shadow: inset 0 1px 6px rgba(0,0,0,0.03);
+}
+
+/* Danger/Cancel button upgrade */
+.modal-content.glass .btn-danger {
+    background: linear-gradient(180deg,#ff6b6b 0%, #ff2d55 100%);
+    border: none;
+    color: #fff;
+    box-shadow: 0 8px 20px rgba(255,45,85,0.18);
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.modal-content.glass .btn-danger:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(255,45,85,0.22);
+}
+
+/* Make the modal footer buttons rounded and balanced */
+.modal-content.glass .modal-footer .btn {
+    border-radius: 999px;
+    padding: 0.5rem 1rem;
+}
+
+/* Smaller screens tweak */
 @media (max-width: 576px) {
     .home-header { flex-direction: column; gap: 0.5rem; }
     .day-nav-group { flex-direction: column; gap: 0.5rem; }
+    .cancel-btn { top: 8px; right: 8px; padding: 0.35rem 0.6rem; }
+    .modal-content.glass .modal-dialog { margin: 1rem; }
 }

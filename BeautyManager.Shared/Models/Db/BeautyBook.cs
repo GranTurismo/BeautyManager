@@ -11,4 +11,5 @@ public class BeautyBook
     public BeautyTask Task { get; set; }
     public DateTimeOffset ExecutingDate { get; set; }
     public DateTimeOffset OrderDate { get; set; }
+    public int CancellationCode { get; set; }
 }

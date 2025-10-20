@@ -1,0 +1,126 @@
+@using BeautyManager.Shared.Connection
+@using BeautyManager.Shared.Models.Db
+@using BeautyManager.Shared.Models.Local
+@using BeautyManager.Web.Models
+@using BeautyManager.Web.Utils
+@using Microsoft.EntityFrameworkCore
+@inject ErrorMessage ErrorMessage;
+
+<div class="modal fade"
+     id="bookingModal"
+     tabindex="-1" style="background:rgba(0,0,0,0.5);" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass shadow-lg border-0 rounded-4">
+            <div class="modal-header border-0 pb-0">
+                <h3 class="modal-title fw-bold text-primary">Select Task
+                    for @(SelectedCard?.StartDate.ToString("hh:mm"))</h3>
+            </div>
+            <div class="modal-body">
+                <label class="form-label mb-2" for="taskSelect">Task:</label>
+                <InputSelect id="taskSelect" class="form-select form-select-lg rounded-3" @bind-Value="_selectedTaskId">
+                    @foreach (BeautyTask task in BeautyTasks)
+                    {
+                        <option value="@task.Id">@task.TaskTitle</option>
+                    }
+                </InputSelect>
+
+                <label class="form-label mt-2 fw-semibold text-secondary">
+                    <i class="bi bi-clock-history me-2"></i>
+                    Duration: <span
+                        class="badge bg-info text-dark fs-6">@(BeautyTasks.FirstOrDefault(o => o.Id == _selectedTaskId)?.TaskDuration.ToString("HH\\:mm"))</span>
+                </label>
+                <div class="mb-3">
+                    <label for="customerName" class="form-label fw-semibold text-secondary">
+                        <i class="bi bi-person-circle me-2"></i>Your name:
+                    </label>
+                    <InputText id="customerName" class="form-control form-control-lg rounded-3"
+                               @bind-Value="@_customerName" placeholder="Enter your name"/>
+                </div>
+                <div class="mb-3">
+                    <label for="inputNumber" class="form-label fw-semibold text-secondary">
+                        <i class="bi bi-telephone me-2"></i>Your phone:
+                    </label>
+                    <InputText id="inputNumber" class="form-control form-control-lg rounded-3"
+                               @bind-Value="InputNumber" placeholder="Enter your phone number"/>
+                </div>
+                @if (ErrorMessage.IsErrorOccured)
+                {
+                    <div class="alert alert-danger mt-3" role="alert">
+                        @ErrorMessage.Message
+                    </div>
+                }
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" @onclick="Book" disabled="@_isBooking"
+                            class="btn btn-primary rounded-pill px-4">Save
+                    </button>
+                    <button type="button" id="cancel" class="btn btn-outline-secondary rounded-pill px-4">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Inject] BookValidator BookValidator { get; set; } 
+    [Inject] BeautyDbContext DbContext { get; set; }
+        
+    [Parameter] public WorkingCard? SelectedCard { get; set; }
+    [Parameter] public List<BeautyTask> BeautyTasks { get; set; } = new();
+    /// <summary>
+    /// Passes, selected task id
+    /// </summary>
+    [Parameter] public EventCallback<BeautyBook> OnBooking { get; set; }
+    
+    private string _customerName = string.Empty;
+    private string InputNumber = string.Empty;
+    private int _selectedTaskId;
+    private bool _isBooking = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (firstRender && BeautyTasks.Any())
+        {
+            _selectedTaskId = BeautyTasks.First().Id;
+            StateHasChanged();
+        }
+    }
+
+    private async Task Book()
+    {
+        _isBooking = true;
+        BeautyTask? selectedTask = BeautyTasks.FirstOrDefault(o=>o.Id==_selectedTaskId);
+        List<BeautyBook> books = await DbContext.BeautyBooks.ToListAsync();
+        
+        BeautyBook book = new()
+        {
+            CustomerName = _customerName ?? string.Empty,
+            CustomerPhone = InputNumber ?? string.Empty,
+            ExecutingDate = SelectedCard.StartDate,
+            OrderDate = DateTimeOffset.Now,
+            Task = selectedTask,
+            CancellationCode = new Random().Next(10000000, 99999999)
+        };
+        ErrorMessage err = BookValidator.ValidateData(books, book, SelectedCard, selectedTask, ErrorMessage);
+        if (err.IsErrorOccured)
+        {
+            StateHasChanged();
+            return;
+        }
+
+        await OnBooking.InvokeAsync(book);
+        
+        _isBooking = false;
+        ResetFields();
+    }
+
+    private void ResetFields()
+    {
+        _customerName = string.Empty;
+        InputNumber = string.Empty;
+        _selectedTaskId = BeautyTasks.Any() ? BeautyTasks.First().Id : 0;
+    }
+
+}

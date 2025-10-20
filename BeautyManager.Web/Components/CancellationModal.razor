@@ -1,0 +1,113 @@
+@inject IJSRuntime JsRuntime
+
+<div class="modal fade" id="@_id" tabindex="-1" aria-labelledby="@IdLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass border-0">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold" id="@IdLabel">@Title</h5>
+                <button type="button" class="btn-close" aria-label="Close" @onclick="OnCloseClicked"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="@InputId" class="form-label fw-semibold">Cancellation code</label>
+                    <InputText id="@InputId" class="form-control form-control-lg rounded-3" @bind-Value="CancellationInput" placeholder="@_placeholder" />
+                </div>
+
+                @if (!string.IsNullOrEmpty(Error))
+                {
+                    <div class="text-danger small mb-2">@Error</div>
+                }
+
+                <div class="text-muted small">Enter the code you received when booking to cancel your appointment.</div>
+            </div>
+
+            <div class="modal-footer border-0 pt-0">
+                <button class="btn btn-outline-secondary rounded-pill px-4" @onclick="CloseAsync">Close</button>
+                <button class="btn btn-danger rounded-pill px-4" @onclick="SubmitAsync">Cancel booking</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string _id { get; set; } = "cancellationModal";
+
+    [Parameter]
+    public string Title { get; set; } = "Cancel booking";
+
+    private string _placeholder { get; set; } = "Enter cancellation code";
+
+    [Parameter]
+    public bool Show
+    {
+        get;
+        set
+        {
+            field = value;
+            OnShowingValueChanged(value);
+        }
+    }
+
+    // When user submits, the parent receives the entered code (string) and can perform validation/removal
+    [Parameter]
+    public EventCallback<string> OnSubmit { get; set; }
+
+    private string CancellationInput { get; set; } = string.Empty;
+    private string? Error { get; set; }
+
+    private string InputId => _id + "_input";
+    private string IdLabel => _id + "Label";
+
+    private async void OnShowingValueChanged(bool shouldShow)
+    {
+        if (shouldShow)
+        {
+            await ShowModalAsync();
+            return;
+        }
+
+        await HideModalAsync();
+    }
+
+    private async Task ShowModalAsync()
+    {
+        await JsRuntime.InvokeVoidAsync("showModal", _id);
+    }
+
+    private async Task HideModalAsync()
+    {
+        await JsRuntime.InvokeVoidAsync("hideModal", _id);
+    }
+
+    private async Task SubmitAsync()
+    {
+        Error = null;
+        if (string.IsNullOrWhiteSpace(CancellationInput))
+        {
+            Error = "Please enter the cancellation code.";
+            return;
+        }
+
+        // send the code back to the parent
+        await OnSubmit.InvokeAsync(CancellationInput.Trim());
+
+        // close and clear
+        await HideModalAsync();
+        CancellationInput = string.Empty;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task CloseAsync()
+    {
+        CancellationInput = string.Empty;
+        Error = null;
+        await HideModalAsync();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task OnCloseClicked()
+    {
+        await CloseAsync();
+    }
+}

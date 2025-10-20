@@ -1,6 +1,7 @@
 using BeautyManager.Shared.Connection;
 using BeautyManager.Web.Components;
 using BeautyManager.Web.Models;
+using BeautyManager.Web.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +10,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddDbContext<BeautyDbContext>();
 builder.Services.AddScoped<ErrorMessage>();
+builder.Services.AddScoped<BookValidator>();
 
 var app = builder.Build();
 

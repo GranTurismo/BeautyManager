@@ -30,8 +30,13 @@
                 <div class="skeleton rounded-pill" style="width:80px;"></div>
             </div>
         </div>
-    </div>    return;
+    </div>
+    return;
 }
+
+<PopupInfo CancellationCode="@currentBookCancellationCode" Title="Only way to cancel it"></PopupInfo>
+<CancellationModal Show="@_isCancellationShown" Title="Cancellation" OnSubmit="@OnCancelSubmit"></CancellationModal>
+<BookingModal BeautyTasks="_beautyTasks" OnBooking="@Book" SelectedCard="_selectedCard"></BookingModal>
 
 <div class="container py-5">
     <div class="home-header">
@@ -78,10 +83,19 @@
 
                     <div
                         class="card working-card h-100 @(card.IsBooked ? "booked" : "") @(card.IsPassed ? "passed" : "")"
-                        data-bs-toggle="@((card.IsBooked || card.IsPassed) ? "" : "modal")"
-                        data-bs-target="#modalSelectTask"
                         @onclick="@((card.IsBooked || card.IsPassed ? null : () => OnCardClick(card))!)">
-                        <div class="card-body d-flex flex-column justify-content-between">
+                        <div class="card-body d-flex flex-column justify-content-between position-relative">
+                            @* Stylish cancel button shown only for booked (and not passed) cards *@
+                            @if (card.IsBooked && !card.IsPassed)
+                            {
+                                <button class="btn cancel-btn shadow"
+                                        title="Cancel booking"
+                                        @onclick:stopPropagation
+                                        @onclick="() => CancelBookingAsync(card)">
+                                    <i class="bi bi-x-circle-fill me-1"></i>Cancel
+                                </button>
+                            }
+
                             <h5 class="card-title text-secondary mb-2">@card.StartDate.ToString("MMMM dd, yyyy")</h5>
                             <p class="card-text fs-5 mb-1">
                                 <span class="badge bg-primary">@card.StartDate.ToString("hh:mm")</span>
@@ -107,62 +121,6 @@
     </div>
 </div>
 
-<div class="modal fade"
-     id="modalSelectTask"
-     tabindex="-1" style="background:rgba(0,0,0,0.5);" aria-modal="true" role="dialog">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content glass shadow-lg border-0 rounded-4">
-            <div class="modal-header border-0 pb-0">
-                <h3 class="modal-title fw-bold text-primary">Select Task
-                    for @(_selectedCard?.StartDate.ToString("hh:mm"))</h3>
-            </div>
-            <div class="modal-body">
-                <label class="form-label mb-2" for="taskSelect">Task:</label>
-                <InputSelect id="taskSelect" class="form-select form-select-lg rounded-3" @bind-Value="_selectedTaskId">
-                    @foreach (BeautyTask task in _beautyTasks)
-                    {
-                        <option value="@task.Id">@task.TaskTitle</option>
-                    }
-                </InputSelect>
-
-                <label class="form-label mt-2 fw-semibold text-secondary">
-                    <i class="bi bi-clock-history me-2"></i>
-                    Duration: <span
-                        class="badge bg-info text-dark fs-6">@(_beautyTasks.FirstOrDefault(o => o.Id == _selectedTaskId)?.TaskDuration.ToString("HH\\:mm"))</span>
-                </label>
-                <div class="mb-3">
-                    <label for="customerName" class="form-label fw-semibold text-secondary">
-                        <i class="bi bi-person-circle me-2"></i>Your name:
-                    </label>
-                    <InputText id="customerName" class="form-control form-control-lg rounded-3"
-                               @bind-Value="@_customerName" placeholder="Enter your name"/>
-                </div>
-                <div class="mb-3">
-                    <label for="inputNumber" class="form-label fw-semibold text-secondary">
-                        <i class="bi bi-telephone me-2"></i>Your phone:
-                    </label>
-                    <InputText id="inputNumber" class="form-control form-control-lg rounded-3"
-                               @bind-Value="InputNumber" placeholder="Enter your phone number"/>
-                </div>
-                @if (ErrorMessage.IsErrorOccured)
-                {
-                    <div class="alert alert-danger mt-3" role="alert">
-                        @ErrorMessage.Message
-                    </div>
-                }
-                <div class="modal-footer border-0 pt-0">
-                    <button type="button" @onclick="Book" disabled="@_isBooking" class="btn btn-primary rounded-pill px-4">Save
-                    </button>
-                    <button type="button" id="cancel" class="btn btn-outline-secondary rounded-pill px-4"
-                            data-bs-dismiss="modal">
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 @code{
     private string? InputNumber { get; set; } = string.Empty;
     private string? _customerName = string.Empty;
@@ -170,6 +128,7 @@
     private Stylist? _selectedStylist;
     private bool _isBooking = false;
     private bool _isPageLoading = true;
+    private int currentBookCancellationCode;
 
     private int SelectedStylistId
     {
@@ -189,10 +148,12 @@
         }
     }
 
+    private bool _isCancellationShown;
+
     private List<Stylist> _stylists = new();
     private List<BeautyBook> _books = new();
     private WorkingCard? _selectedCard;
-    ImmutableList<BeautyTask> _beautyTasks = ImmutableList<BeautyTask>.Empty;
+    List<BeautyTask> _beautyTasks = new();
 
     DateTime _startDate = new(DateTime.Now.Year, DateTime.Now.Month,
         DateTime.Now.Day, Constants.OpeningTime.Hour, Constants.OpeningTime.Minute, 0);
@@ -204,7 +165,7 @@
         if (_selectedStylist == null) return;
         _beautyTasks = _selectedStylist.BeautyTaskStylists
             .Select(o => o.BeautyTask)
-            .ToImmutableList();
+            .ToList();
         if (_beautyTasks.Any())
             _selectedTaskId = _beautyTasks.First().Id;
     }
@@ -255,92 +216,38 @@
         }
     }
 
-    private void OnCardClick(WorkingCard card)
+    private async Task OnCardClick(WorkingCard card)
     {
         _selectedCard = card;
+        await ShowBookingModal();
     }
 
-    private async Task Book()
+    private async Task ShowBookingModal()
     {
-        BeautyTask? selectedTask = _beautyTasks.FirstOrDefault(o => o.Id == _selectedTaskId);
-        if (ValidateData(selectedTask).IsErrorOccured)
-            return;
-        
-        UpdateBooks();
+        await JsRuntime.InvokeVoidAsync("showModal", "bookingModal");
+    }
 
-        BeautyBook book = new()
-        {
-            CustomerName = _customerName ?? string.Empty,
-            CustomerPhone = InputNumber ?? string.Empty,
-            ExecutingDate = _selectedCard.StartDate,
-            OrderDate = DateTimeOffset.Now,
-            Task = selectedTask
-        };
+    private async Task CloseBookingModal()
+    {
+        await JsRuntime.InvokeVoidAsync("hideModal", "bookingModal");
+    }
+
+    private async Task Book(BeautyBook book)
+    {
+        currentBookCancellationCode = book.CancellationCode;
         _selectedStylist?.Books.Add(book);
         await DbCon.SaveChangesAsync();
         UpdateWorkingCards();
         UpdateBooks();
         DisableBookedCards();
         //StateHasChanged();
-        await CloseModal();
+        await CloseBookingModal();
+        await ShowPopupInfoModal(book.CancellationCode);
     }
 
-    private ErrorMessage ValidateData(BeautyTask? selectedTask)
+    private async Task ShowPopupInfoModal(int cancellationCode)
     {
-        ErrorMessage.IsErrorOccured = false;
-        
-        if (selectedTask == null)
-        {
-            ErrorMessage.IsErrorOccured = true;
-            ErrorMessage.Message = "Selected task is invalid.";
-            return ErrorMessage;
-        }
-
-        if (_selectedCard == null)
-        {
-            ErrorMessage.IsErrorOccured = true;
-            ErrorMessage.Message = "Selected time slot is invalid.";
-            return ErrorMessage;
-        }
-
-        if (_customerName.IsNullOrEmpty() || _customerName.Trim().Length < 2)
-        {
-            ErrorMessage.IsErrorOccured = true;
-            ErrorMessage.Message = "Please enter a valid name.";
-            return ErrorMessage;
-        }
-
-        if (InputNumber.IsNullOrEmpty() || InputNumber.Trim().Length < 5)
-        {
-            ErrorMessage.IsErrorOccured = true;
-            ErrorMessage.Message = "Please enter a valid phone number.";
-            return ErrorMessage;
-        }
-
-        DateTimeOffset endDate = _selectedCard.StartDate.Add(selectedTask.TaskDuration.ToTimeSpan());
-        if (_books.Any(o =>
-                o.ExecutingDate >= _selectedCard.StartDate
-                && o.ExecutingDate < endDate))
-        {
-            ErrorMessage.IsErrorOccured = true;
-            ErrorMessage.Message = "The selected time slot is already booked or has passed.";
-            return ErrorMessage;
-        }
-
-        return ErrorMessage;
-    }
-
-    private async Task CloseModal()
-    {
-        ResetFields();
-        await JsRuntime.InvokeVoidAsync("closeModal", "cancel");
-    }
-
-    private void ResetFields()
-    {
-        _customerName = string.Empty;
-        InputNumber = string.Empty;
-        ErrorMessage.IsErrorOccured = false;
+        await JsRuntime.InvokeVoidAsync("showModal", "infoModal");
     }
 
     private void Next(int daysCount)
@@ -351,4 +258,18 @@
         //StateHasChanged();
     }
 
+    private Task CancelBookingAsync(WorkingCard card)
+    {
+        _isCancellationShown = true;
+        return Task.CompletedTask;
+    }
+
+    private Task OnCancelSubmit(string code)
+    {
+        Console.WriteLine(code);
+
+        return Task.CompletedTask;
+    }
+
 }
+

@@ -1,0 +1,33 @@
+@* Bootstrap Info Modal Component *@
+<div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-info">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="infoModalLabel">
+                    <i class="bi bi-info-circle-fill me-2"></i>
+                    @Title
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                @if (CancellationCode > 0)
+                {
+                    <p class="fs-4 mb-2">Your cancellation code:</p>
+                    <div class="display-6 fw-bold text-primary">@CancellationCode</div>
+                    <hr/>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-info" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code
+{
+    [Parameter] public int CancellationCode { get; set; }
+
+    [Parameter] public string Title { get; set; } = "Title";
+}

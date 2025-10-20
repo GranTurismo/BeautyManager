@@ -1,4 +1,15 @@
-function closeModal(cancelId)
+var currentModalInstance;
+
+function hideModal(id)
 {
-    document.getElementById(cancelId).click();
+        currentModalInstance = bootstrap.Modal.getInstance(document.getElementById(id));
+        if(currentModalInstance!=undefined)
+            currentModalInstance.hide();
+}
+
+function showModal(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const modal = new bootstrap.Modal(el);
+    modal.show();
 }
