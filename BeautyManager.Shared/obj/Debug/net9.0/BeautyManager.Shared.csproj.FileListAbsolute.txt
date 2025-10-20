@@ -1,0 +1,15 @@
+/home/runner/work/BeautyManager/BeautyManager/BeautyManager.Shared/bin/Debug/net9.0/BeautyManager.Shared.deps.json
+/home/runner/work/BeautyManager/BeautyManager/BeautyManager.Shared/bin/Debug/net9.0/BeautyManager.Shared.runtimeconfig.json
+/home/runner/work/BeautyManager/BeautyManager/BeautyManager.Shared/bin/Debug/net9.0/BeautyManager.Shared.dll
+/home/runner/work/BeautyManager/BeautyManager/BeautyManager.Shared/bin/Debug/net9.0/BeautyManager.Shared.pdb
+/home/runner/work/BeautyManager/BeautyManager/BeautyManager.Shared/obj/Debug/net9.0/BeautyManager.Shared.csproj.AssemblyReference.cache
+/home/runner/work/BeautyManager/BeautyManager/BeautyManager.Shared/obj/Debug/net9.0/BeautyManager.Shared.GeneratedMSBuildEditorConfig.editorconfig
+/home/runner/work/BeautyManager/BeautyManager/BeautyManager.Shared/obj/Debug/net9.0/BeautyManager.Shared.AssemblyInfoInputs.cache
+/home/runner/work/BeautyManager/BeautyManager/BeautyManager.Shared/obj/Debug/net9.0/BeautyManager.Shared.AssemblyInfo.cs
+/home/runner/work/BeautyManager/BeautyManager/BeautyManager.Shared/obj/Debug/net9.0/BeautyManager.Shared.csproj.CoreCompileInputs.cache
+/home/runner/work/BeautyManager/BeautyManager/BeautyManager.Shared/obj/Debug/net9.0/BeautyManager.Shared.sourcelink.json
+/home/runner/work/BeautyManager/BeautyManager/BeautyManager.Shared/obj/Debug/net9.0/BeautyManager.Shared.dll
+/home/runner/work/BeautyManager/BeautyManager/BeautyManager.Shared/obj/Debug/net9.0/refint/BeautyManager.Shared.dll
+/home/runner/work/BeautyManager/BeautyManager/BeautyManager.Shared/obj/Debug/net9.0/BeautyManager.Shared.pdb
+/home/runner/work/BeautyManager/BeautyManager/BeautyManager.Shared/obj/Debug/net9.0/BeautyManager.Shared.genruntimeconfig.cache
+/home/runner/work/BeautyManager/BeautyManager/BeautyManager.Shared/obj/Debug/net9.0/ref/BeautyManager.Shared.dll
