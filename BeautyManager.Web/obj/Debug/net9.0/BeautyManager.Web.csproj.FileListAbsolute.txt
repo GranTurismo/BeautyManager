@@ -156,7 +156,6 @@
 /home/runner/work/BeautyManager/BeautyManager/BeautyManager.Web/obj/Debug/net9.0/scopedcss/Components/Layout/ReconnectModal.razor.rz.scp.css
 /home/runner/work/BeautyManager/BeautyManager/BeautyManager.Web/obj/Debug/net9.0/scopedcss/bundle/BeautyManager.Web.styles.css
 /home/runner/work/BeautyManager/BeautyManager/BeautyManager.Web/obj/Debug/net9.0/scopedcss/projectbundle/BeautyManager.Web.bundle.scp.css
-/home/runner/work/BeautyManager/BeautyManager/BeautyManager.Web/obj/Debug/net9.0/compressed/izs3f6xsia-z4z4fil66m.gz
 /home/runner/work/BeautyManager/BeautyManager/BeautyManager.Web/obj/Debug/net9.0/compressed/6mkt1aow3a-lv5tvmajl9.gz
 /home/runner/work/BeautyManager/BeautyManager/BeautyManager.Web/obj/Debug/net9.0/compressed/9lhidfve8f-f291bgxpgc.gz
 /home/runner/work/BeautyManager/BeautyManager/BeautyManager.Web/obj/Debug/net9.0/compressed/f1vpk0q2dw-yrrjds8uiu.gz
@@ -172,3 +171,4 @@
 /home/runner/work/BeautyManager/BeautyManager/BeautyManager.Web/obj/Debug/net9.0/BeautyManager.Web.pdb
 /home/runner/work/BeautyManager/BeautyManager/BeautyManager.Web/obj/Debug/net9.0/BeautyManager.Web.genruntimeconfig.cache
 /home/runner/work/BeautyManager/BeautyManager/BeautyManager.Web/obj/Debug/net9.0/ref/BeautyManager.Web.dll
+/home/runner/work/BeautyManager/BeautyManager/BeautyManager.Web/obj/Debug/net9.0/compressed/izs3f6xsia-m28gxcnpfw.gz
