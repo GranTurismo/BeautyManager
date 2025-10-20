@@ -9,15 +9,17 @@
 @inject IJSRuntime JsRuntime;
 
 <div class="container py-5">
-    <h2 class="mb-4 fw-bold text-primary">Today's Working Cards</h2>
-    <button @onclick="()=>Next(1)" class="btn btn-outline-primary rounded-pill px-4 py-2 mb-4 shadow-sm d-flex align-items-center gap-2">
-        <i class="bi bi-arrow-right-circle fs-5"></i>
-        Next Day
-    </button>
-    <button @onclick="()=>Next(-1)" class="btn btn-outline-primary rounded-pill px-4 py-2 mb-4 shadow-sm d-flex align-items-center gap-2">
-        <i class="bi bi-arrow-right-circle fs-5"></i>
-        Prev Day
-    </button>
+    <h2 class="mb-4 fw-bold" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 2.5rem;">Today's Working Cards</h2>
+    <div class="d-flex gap-3 mb-4">
+        <button @onclick="()=>Next(-1)" class="btn btn-outline-primary rounded-pill px-4 py-2 shadow-sm d-flex align-items-center gap-2">
+            <i class="bi bi-arrow-left-circle fs-5"></i>
+            Previous Day
+        </button>
+        <button @onclick="()=>Next(1)" class="btn btn-outline-primary rounded-pill px-4 py-2 shadow-sm d-flex align-items-center gap-2">
+            <i class="bi bi-arrow-right-circle fs-5"></i>
+            Next Day
+        </button>
+    </div>
     <div class="row g-4 justify-content-center">
         @if (_workingCards.Count > 0)
         {
@@ -29,11 +31,11 @@
                          data-bs-toggle="modal"
                          data-bs-target="#modalSelectTask"
                          @onclick="() => OnCardClick(card)">
-                        <div class="card shadow-sm border-primary h-100">
+                        <div class="card shadow-sm border-0 h-100">
                             <div class="card-body d-flex flex-column justify-content-between">
                                 <h5 class="card-title text-secondary mb-2">@card.StartDate.ToString("MMMM dd, yyyy")</h5>
                                 <p class="card-text fs-5 mb-1">
-                                    <span class="badge bg-primary">@card.StartDate.ToString("hh:mm")</span>
+                                    <span class="badge bg-primary">@card.StartDate.ToString("hh:mm tt")</span>
                                 </p>
                             </div>
                         </div>
@@ -42,11 +44,11 @@
                 else
                 {
                     <div class="col-12 col-sm-6 col-md-4 col-lg-3 opacity-50">
-                        <div class="card shadow-sm border-primary h-100">
+                        <div class="card shadow-sm border-0 h-100">
                             <div class="card-body d-flex flex-column justify-content-between">
                                 <h5 class="card-title text-secondary mb-2">@card.StartDate.ToString("MMMM dd, yyyy")</h5>
                                 <p class="card-text fs-5 mb-1">
-                                    <span class="badge bg-primary">@card.StartDate.ToString("hh:mm")</span>
+                                    <span class="badge bg-primary">@card.StartDate.ToString("hh:mm tt")</span>
                                 </p>
                             </div>
                         </div>
